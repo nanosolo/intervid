@@ -7,7 +7,7 @@
   <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
   <style>
     body {
-      background: #000000;
+      background: #ffffff;
       color: #222;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       text-align: center;
@@ -147,6 +147,10 @@
       box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
     }
 
+    .medication-action-btn:active {
+      transform: translateY(0);
+    }
+
     .medication-action-btn.secondary {
       background: linear-gradient(135deg, #023e8a 0%, #0077b6 50%, #0096c7 100%);
     }
@@ -274,16 +278,28 @@
       box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
     }
 
+    .quiz-btn:not(.disabled):not(.correct):not(.incorrect):active {
+      transform: translateY(0) scale(1);
+    }
+
     .quiz-btn.correct {
       background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
       box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
       cursor: default;
     }
 
+    .quiz-btn.correct::before {
+      display: none;
+    }
+
     .quiz-btn.incorrect {
       background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
       box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
       cursor: default;
+    }
+
+    .quiz-btn.incorrect::before {
+      display: none;
     }
 
     .quiz-btn.disabled {
@@ -305,9 +321,17 @@
     }
 
     @keyframes popScaleSmall {
-      0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-      50% { transform: scale(1.1) rotate(10deg); }
-      100% { transform: scale(1) rotate(0); opacity: 1; }
+      0% { 
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.1) rotate(10deg);
+      }
+      100% { 
+        transform: scale(1) rotate(0);
+        opacity: 1;
+      }
     }
 
     .checkmark {
@@ -338,7 +362,9 @@
     }
 
     @keyframes strokeCheck {
-      100% { stroke-dashoffset: 0; }
+      100% {
+        stroke-dashoffset: 0;
+      }
     }
 
     .xmark {
@@ -381,10 +407,10 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(0, 0, 0, 0.5);
       display: none;
       z-index: 10;
-      
+      backdrop-filter: blur(4px);
     }
 
     .anatomy-overlay.visible {
@@ -458,9 +484,9 @@
 
     .anatomy-info-card {
       position: absolute;
-      left: 30px;
+      right: 30px;
       top: 50%;
-      transform: translateY(-50%) translateX(-400px);
+      transform: translateY(-50%) translateX(400px);
       width: 340px;
       background: linear-gradient(145deg, #1f1f1f 0%, #0a0a0a 100%);
       border-radius: 20px;
@@ -916,14 +942,14 @@
       <h2>Choose the group of medications</h2>
       <select class="medication-select" id="medication-select">
         <option value="">Select medication group...</option>
-        <option value="ace-inhibitors">ACE inhibitors</option>
-        <option value="beta-blockers">Beta-blockers</option>
-        <option value="arbs">ARBs</option>
-        <option value="ca-channel-blockers">Ca channel blockers</option>
+        <option value="https://www.youtube.com/watch?v=dQw4w9WgXcQ">ACE inhibitors</option>
+        <option value="https://www.youtube.com/watch?v=9bZkp7q19f0">Beta-blockers</option>
+        <option value="https://www.youtube.com/watch?v=kJQP7kiw5Fk">ARBs</option>
+        <option value="https://www.youtube.com/watch?v=jNQXAC9IVRw">Ca channel blockers</option>
       </select>
       <div class="medication-actions">
-        <button class="medication-action-btn" id="download-checklist">Download Checklist</button>
-        <button class="medication-action-btn secondary" id="get-consultation">Get Consultation</button>
+        <button class="medication-action-btn" id="download-checklist">⬇️ Download Checklist</button>
+        <button class="medication-action-btn secondary" id="get-consultation">💬 Get Consultation</button>
       </div>
       <button class="close-medication-btn" id="close-medication">Continue watching</button>
     </div>
@@ -941,21 +967,21 @@
   </div>
 
   <div class="anatomy-overlay" id="anatomy-overlay">
-    <div class="anatomy-hint">Click on the markers to explore</div>
+    <div class="anatomy-hint">👆 Click on the markers to explore</div>
     
-    <div class="anatomy-marker" style="left: 58%; top: 48%;" data-organ="heart">
+    <div class="anatomy-marker" style="left: 50%; top: 45%;" data-organ="heart">
       <div class="anatomy-marker-label">Heart</div>
     </div>
     
-    <div class="anatomy-marker" style="left: 63%; top: 28%;" data-organ="aorta">
+    <div class="anatomy-marker" style="left: 48%; top: 35%;" data-organ="aorta">
       <div class="anatomy-marker-label">Aorta</div>
     </div>
     
-    <div class="anatomy-marker" style="left: 61%; top: 24%;" data-organ="arteries">
+    <div class="anatomy-marker" style="left: 40%; top: 50%;" data-organ="arteries">
       <div class="anatomy-marker-label">Arteries</div>
     </div>
     
-    <div class="anatomy-marker" style="left: 56%; top: 31%;" data-organ="veins">
+    <div class="anatomy-marker" style="left: 60%; top: 50%;" data-organ="veins">
       <div class="anatomy-marker-label">Veins</div>
     </div>
 
@@ -964,7 +990,7 @@
       <p id="organ-description">The heart is a muscular organ that pumps blood throughout your body.</p>
       <p id="organ-function"><strong>Function:</strong> Circulates oxygen and nutrients to tissues.</p>
       <div class="fun-fact" id="organ-fact">
-        <strong>Interesting fact:</strong> Your heart beats about 100,000 times per day!
+        <strong>💡 Interesting fact:</strong> Your heart beats about 100,000 times per day!
       </div>
       <button class="close-card-btn" id="close-anatomy-card">Close</button>
     </div>
@@ -997,8 +1023,8 @@
       
       <div class="contact-info" id="contact-section">
         <h3>Connect with our Account Executive</h3>
-        <p>Email: <a href="mailto:sales@nanobotmedical.com">sales@nanobotmedical.com</a></p>
-        <p>Phone: <a href="tel:+48799354938">+48 799 35 49 38</a></p>
+        <p>✉️ Email: <a href="mailto:sales@medicalvideos.com">sales@medicalvideos.com</a></p>
+        <p>📱 Phone: <a href="tel:+15551234567">+1 (555) 123-4567</a></p>
       </div>
     </div>
   </div>
@@ -1073,37 +1099,43 @@
     }
   };
 
-if (t >= 27 && t < 27.5 && !medicationShown) {
-  player.pause();
-  medicationOverlay.classList.add('visible');
-  medicationShown = true;
-}
-
-if (t >= 30 && t < 30.5 && !quizShown) {
-  player.pause();
-  quizOverlay.classList.add('visible');
-  quizShown = true;
-}
-
-if (t >= 31 && t < 31.5 && !anatomyShown) {
-  player.pause();
-  anatomyOverlay.classList.add('visible');
-  anatomyShown = true;
-}
-
-if (t >= 37 && t < 37.5 && !styleShown) {
-  player.pause();
-  styleOverlay.classList.add('visible');
-  styleShown = true;
-}
+  player.on('timeupdate', function() {
+    const t = player.currentTime();
+    
+    if (t >= 27 && t < 27.5 && !medicationShown) {
+      player.pause();
+      medicationOverlay.classList.add('visible');
+      medicationShown = true;
+    }
+    
+    if (t >= 30 && t < 30.5 && !quizShown) {
+      player.pause();
+      quizOverlay.classList.add('visible');
+      quizShown = true;
+    }
+    
+    if (t >= 31 && t < 31.5 && !anatomyShown) {
+      player.pause();
+      anatomyOverlay.classList.add('visible');
+      anatomyShown = true;
+    }
+    
+    if (t >= 37 && t < 37.5 && !styleShown) {
+      player.pause();
+      styleOverlay.classList.add('visible');
+      styleShown = true;
+    }
   });
 
   medicationSelect.addEventListener('change', function() {
-    // Просто выбор без действия
+    if (this.value) {
+      window.open(this.value, '_blank');
+      this.value = '';
+    }
   });
 
-  downloadChecklistBtn.addEventListener('click', () => {
-    const blob = new Blob(['Medication Checklist\n===================\n\nACE inhibitors\nBeta-blockers\nARBs\nCa channel blockers\n\nNotes:\n______________________\n______________________\n'], { type: 'text/plain' });
+  downloadChecklistBtn.addEventListener('click', function() {
+    const blob = new Blob(['Medication Checklist\n===================\n\n□ ACE inhibitors\n□ Beta-blockers\n□ ARBs\n□ Ca channel blockers\n\nNotes:\n______________________\n______________________\n______________________\n'], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -1112,23 +1144,23 @@ if (t >= 37 && t < 37.5 && !styleShown) {
     URL.revokeObjectURL(url);
   });
 
-  getConsultationBtn.addEventListener('click', () => {
+  getConsultationBtn.addEventListener('click', function() {
     window.open('mailto:consultation@medicalvideos.com?subject=Request for Consultation', '_blank');
   });
 
-  closeMedicationBtn.addEventListener('click', () => {
+  closeMedicationBtn.addEventListener('click', function() {
     medicationOverlay.classList.remove('visible');
     player.play();
   });
 
-  quizButtons.forEach(btn => {
+  quizButtons.forEach(function(btn) {
     btn.addEventListener('click', function() {
       if (this.classList.contains('disabled')) return;
       
       const userAnswer = this.getAttribute('data-answer');
       const correctAnswer = quizData[currentQuizIndex].correct;
       
-      quizButtons.forEach(b => b.classList.add('disabled'));
+      quizButtons.forEach(function(b) { b.classList.add('disabled'); });
       
       if (userAnswer === correctAnswer) {
         this.classList.add('correct');
@@ -1136,7 +1168,7 @@ if (t >= 37 && t < 37.5 && !styleShown) {
       } else {
         this.classList.add('incorrect');
         this.innerHTML = '<div class="quiz-result-icon"><svg class="xmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="xmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="xmark-line" fill="none" d="M16 16 36 36 M36 16 16 36"/></svg></div>';
-        quizButtons.forEach(b => {
+        quizButtons.forEach(function(b) {
           if (b.getAttribute('data-answer') === correctAnswer) {
             b.classList.add('correct');
             b.innerHTML = '<div class="quiz-result-icon"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div>';
@@ -1144,12 +1176,12 @@ if (t >= 37 && t < 37.5 && !styleShown) {
         });
       }
       
-      setTimeout(() => {
+      setTimeout(function() {
         currentQuizIndex++;
         if (currentQuizIndex < quizData.length) {
           quizQuestion.textContent = quizData[currentQuizIndex].question;
           quizProgress.textContent = 'Question ' + (currentQuizIndex + 1) + ' of ' + quizData.length;
-          quizButtons.forEach(b => {
+          quizButtons.forEach(function(b) {
             b.classList.remove('correct', 'incorrect', 'disabled');
             b.innerHTML = b.getAttribute('data-answer') === 'true' ? 'True' : 'False';
           });
@@ -1158,7 +1190,7 @@ if (t >= 37 && t < 37.5 && !styleShown) {
           currentQuizIndex = 0;
           quizQuestion.textContent = quizData[0].question;
           quizProgress.textContent = 'Question 1 of 3';
-          quizButtons.forEach(b => {
+          quizButtons.forEach(function(b) {
             b.classList.remove('correct', 'incorrect', 'disabled');
             b.innerHTML = b.getAttribute('data-answer') === 'true' ? 'True' : 'False';
           });
@@ -1168,81 +1200,83 @@ if (t >= 37 && t < 37.5 && !styleShown) {
     });
   });
 
-  anatomyMarkers.forEach(marker => {
-    marker.addEventListener('click', () => {
+  anatomyMarkers.forEach(function(marker) {
+    marker.addEventListener('click', function() {
       const organ = marker.getAttribute('data-organ');
       const data = anatomyData[organ];
       
       document.getElementById('organ-name').textContent = data.name;
       document.getElementById('organ-description').textContent = data.description;
       document.getElementById('organ-function').innerHTML = '<strong>Function:</strong> ' + data.function;
-      document.getElementById('organ-fact').innerHTML = '<strong>Interesting fact:</strong> ' + data.fact;
+      document.getElementById('organ-fact').innerHTML = '<strong>💡 Interesting fact:</strong> ' + data.fact;
       
       anatomyCard.classList.add('visible');
     });
   });
 
-  closeAnatomyCardBtn.addEventListener('click', () => {
+  closeAnatomyCardBtn.addEventListener('click', function() {
     anatomyCard.classList.remove('visible');
   });
 
-  continueAnatomyBtn.addEventListener('click', () => {
+  continueAnatomyBtn.addEventListener('click', function() {
     anatomyOverlay.classList.remove('visible');
     anatomyCard.classList.remove('visible');
     player.play();
   });
 
-  styleButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
+  styleButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
       window.open(btn.getAttribute('data-url'), '_blank');
     });
   });
 
-  closeStyleBtn.addEventListener('click', () => {
+  closeStyleBtn.addEventListener('click', function() {
     styleOverlay.classList.remove('visible');
     player.play();
   });
 
-  player.on('ended', () => {
+  player.on('ended', function() {
     endOverlay.classList.add('visible');
   });
 
-  optionButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
+  optionButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
       questionSection.style.display = 'none';
       contactSection.classList.add('visible');
     });
   });
 
-  player.ready(() => {
-    const duration = player.duration() || 54.5;
+  player.on('loadedmetadata', function() {
+    const duration = player.duration();
+    console.log('Video duration:', duration);
+    
     const progressControl = player.controlBar.progressControl;
     const bar = progressControl.seekBar.el();
 
-const markers = [
-  { time: 27, label: 'Medications' },
-  { time: 30, label: 'Quiz' },
-  { time: 31, label: 'Cardiovascular System' },
-  { time: 37, label: 'Choose your style' },
-  { time: 54, label: 'Interactive Question' }
-];
+    const markers = [
+      { time: 27, label: 'Medications' },
+      { time: 30, label: 'Quiz' },
+      { time: 31, label: 'Cardiovascular System' },
+      { time: 37, label: 'Choose your style' },
+      { time: 54, label: 'Interactive Question' }
+    ];
 
-    markers.forEach(m => {
+    markers.forEach(function(m) {
       const marker = document.createElement('div');
       marker.className = 'vjs-marker';
       marker.style.left = (m.time / duration * 100) + '%';
 
       const tooltip = document.createElement('div');
       tooltip.className = 'tooltip';
-      tooltip.textContent = m.label;
-      tooltip.style.left = '50%';
-      
+      tooltip.innerText = m.label;
+
       marker.appendChild(tooltip);
-      bar.appendChild(marker);
-      
-      marker.addEventListener('click', () => {
+      marker.onclick = function() {
         player.currentTime(m.time);
-      });
+        player.play();
+      };
+
+      bar.appendChild(marker);
     });
   });
 </script>
