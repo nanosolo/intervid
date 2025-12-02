@@ -1073,32 +1073,29 @@
     }
   };
 
-  player.on('timeupdate', () => {
-    const t = player.currentTime();
-    
-    if (t >= 30 && t < 30.5 && !medicationShown) {
-      player.pause();
-      medicationOverlay.classList.add('visible');
-      medicationShown = true;
-    }
-    
-    if (t >= 33 && t < 33.5 && !quizShown) {
-      player.pause();
-      quizOverlay.classList.add('visible');
-      quizShown = true;
-    }
-    
-   if (t >= 34 && t < 34.5 && !anatomyShown) {
-      player.pause();
-      anatomyOverlay.classList.add('visible');
-      anatomyShown = true;
-    }
-    
-    if (t >= 41 && t < 41.5 && !styleShown) {
-      player.pause();
-      styleOverlay.classList.add('visible');
-      styleShown = true;
-    }
+if (t >= 27 && t < 27.5 && !medicationShown) {
+  player.pause();
+  medicationOverlay.classList.add('visible');
+  medicationShown = true;
+}
+
+if (t >= 30 && t < 30.5 && !quizShown) {
+  player.pause();
+  quizOverlay.classList.add('visible');
+  quizShown = true;
+}
+
+if (t >= 31 && t < 31.5 && !anatomyShown) {
+  player.pause();
+  anatomyOverlay.classList.add('visible');
+  anatomyShown = true;
+}
+
+if (t >= 37 && t < 37.5 && !styleShown) {
+  player.pause();
+  styleOverlay.classList.add('visible');
+  styleShown = true;
+}
   });
 
   medicationSelect.addEventListener('change', function() {
@@ -1223,11 +1220,11 @@
     const bar = progressControl.seekBar.el();
 
 const markers = [
-  { time: 30, label: 'Medications' },           // было 28
-  { time: 33, label: 'Quiz' },                  // было 31
-  { time: 34, label: 'Cardiovascular System' }, // было 32
-  { time: 41, label: 'Choose your style' },     // было 38
-  { time: 53, label: 'Interactive Question' }   // было 50
+  { time: 27, label: 'Medications' },
+  { time: 30, label: 'Quiz' },
+  { time: 31, label: 'Cardiovascular System' },
+  { time: 37, label: 'Choose your style' },
+  { time: 54, label: 'Interactive Question' }
 ];
 
     markers.forEach(m => {
