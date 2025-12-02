@@ -1076,25 +1076,25 @@
   player.on('timeupdate', () => {
     const t = player.currentTime();
     
-    if (t >= 27.43 && t < 27.93 && !medicationShown) {
+    if (t >= 30 && t < 30.5 && !medicationShown) {
       player.pause();
       medicationOverlay.classList.add('visible');
       medicationShown = true;
     }
     
-    if (t >= 30.66 && t < 31.16 && !quizShown) {
+    if (t >= 33 && t < 33.5 && !quizShown) {
       player.pause();
       quizOverlay.classList.add('visible');
       quizShown = true;
     }
     
-    if (t >= 32.06 && t < 32.56 && !anatomyShown) {
+   if (t >= 34 && t < 34.5 && !anatomyShown) {
       player.pause();
       anatomyOverlay.classList.add('visible');
       anatomyShown = true;
     }
     
-    if (t >= 37.66 && t < 38.16 && !styleShown) {
+    if (t >= 41 && t < 41.5 && !styleShown) {
       player.pause();
       styleOverlay.classList.add('visible');
       styleShown = true;
