@@ -1222,13 +1222,13 @@
     const progressControl = player.controlBar.progressControl;
     const bar = progressControl.seekBar.el();
 
-    const markers = [
-      { time: 27.43, label: 'Medications' },
-      { time: 30.66, label: 'Quiz' },
-      { time: 32.06, label: 'Cardiovascular System' },
-      { time: 37.66, label: 'Choose your style' },
-      { time: 49.93, label: 'Interactive Question' }
-    ];
+const markers = [
+  { time: 30, label: 'Medications' },           // было 28
+  { time: 33, label: 'Quiz' },                  // было 31
+  { time: 34, label: 'Cardiovascular System' }, // было 32
+  { time: 41, label: 'Choose your style' },     // было 38
+  { time: 53, label: 'Interactive Question' }   // было 50
+];
 
     markers.forEach(m => {
       const marker = document.createElement('div');
