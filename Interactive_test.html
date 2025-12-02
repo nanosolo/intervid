@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Video Player</title>
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  <style>
+    body {
+      background: #000000;
+      color: #222;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+    .video-container {
+      position: relative;
+      max-width: 900px;
+      margin: 40px auto;
+    }
+    .video-js {
+      width: 900px;
+      height: 506px;
+    }
+    .vjs-default-skin {
+      --vjs-theme-color: #00b4d8;
+    }
+
+    .medication-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 20px;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    .medication-overlay.visible {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .medication-container {
+      background: linear-gradient(145deg, #1f1f1f 0%, #0a0a0a 100%);
+      padding: 35px;
+      border-radius: 20px;
+      max-width: 420px;
+      width: 90%;
+      border: 1px solid rgba(0, 180, 216, 0.2);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .medication-container h2 {
+      background: linear-gradient(90deg, #00b4d8 0%, #48cae4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-top: 0;
+      margin-bottom: 25px;
+      font-size: 22px;
+      line-height: 1.3;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .medication-select {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 15px;
+      border: 2px solid rgba(0, 180, 216, 0.3);
+      border-radius: 12px;
+      background: #0a0a0a;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .medication-select:focus {
+      outline: none;
+      border-color: #00b4d8;
+      box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.15);
+      background: #1a1a1a;
+    }
+
+    .medication-select option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .medication-actions {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .medication-action-btn {
+      background: linear-gradient(135deg, #0096c7 0%, #00b4d8 50%, #48cae4 100%);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-align: center;
+      flex: 1;
+      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .medication-action-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .medication-action-btn:hover::before {
+      left: 100%;
+    }
+
+    .medication-action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+    }
+
+    .medication-action-btn.secondary {
+      background: linear-gradient(135deg, #023e8a 0%, #0077b6 50%, #0096c7 100%);
+    }
+
+    .close-medication-btn {
+      background: rgba(255, 255, 255, 0.05);
+      color: #999;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .close-medication-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .close-medication-btn:hover::before {
+      left: 100%;
+    }
+
+    .close-medication-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ddd;
+    }
+
+    .quiz-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 20px;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    .quiz-overlay.visible {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .quiz-container {
+      background: linear-gradient(145deg, #1f1f1f 0%, #0a0a0a 100%);
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      border: 1px solid rgba(0, 180, 216, 0.2);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .quiz-container h2 {
+      background: linear-gradient(90deg, #00b4d8 0%, #48cae4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-size: 22px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .quiz-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .quiz-btn {
+      background: linear-gradient(135deg, #0096c7 0%, #00b4d8 50%, #48cae4 100%);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+      min-width: 120px;
+      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quiz-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .quiz-btn:hover::before {
+      left: 100%;
+    }
+
+    .quiz-btn:not(.disabled):not(.correct):not(.incorrect):hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+    }
+
+    .quiz-btn.correct {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
+      cursor: default;
+    }
+
+    .quiz-btn.incorrect {
+      background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+      cursor: default;
+    }
+
+    .quiz-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .quiz-result-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      animation: popScaleSmall 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes popScaleSmall {
+      0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+      50% { transform: scale(1.1) rotate(10deg); }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    .checkmark {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-block;
+      stroke-width: 3;
+      stroke: #fff;
+      stroke-miterlimit: 10;
+    }
+
+    .checkmark-circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke-miterlimit: 10;
+      stroke: #fff;
+      fill: none;
+      animation: strokeCheck 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark-check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
+    }
+
+    @keyframes strokeCheck {
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .xmark {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-block;
+      stroke-width: 3;
+      stroke: #fff;
+      stroke-miterlimit: 10;
+    }
+
+    .xmark-circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke-miterlimit: 10;
+      stroke: #fff;
+      fill: none;
+      animation: strokeCheck 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .xmark-line {
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
+    }
+
+    .quiz-progress {
+      color: #999;
+      font-size: 15px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .anatomy-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.05);
+      display: none;
+      z-index: 10;
+      
+    }
+
+    .anatomy-overlay.visible {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .anatomy-marker {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #00b4d8 0%, #48cae4 100%);
+      border: 3px solid white;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 11;
+      box-shadow: 0 0 20px rgba(0, 180, 216, 0.6), 0 0 40px rgba(0, 180, 216, 0.3);
+      animation: smoothPulse 2s ease-in-out infinite;
+    }
+
+    .anatomy-marker:hover {
+      animation: smoothPulseHover 1.5s ease-in-out infinite;
+    }
+
+    @keyframes smoothPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(0, 180, 216, 0.6), 0 0 40px rgba(0, 180, 216, 0.3);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 30px rgba(0, 180, 216, 0.8), 0 0 60px rgba(0, 180, 216, 0.5);
+      }
+    }
+
+    @keyframes smoothPulseHover {
+      0%, 100% {
+        transform: scale(1.5);
+        box-shadow: 0 0 35px rgba(0, 180, 216, 0.9), 0 0 70px rgba(0, 180, 216, 0.6);
+      }
+      50% {
+        transform: scale(1.58);
+        box-shadow: 0 0 45px rgba(0, 180, 216, 1), 0 0 90px rgba(0, 180, 216, 0.8);
+      }
+    }
+
+    .anatomy-marker-label {
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      color: white;
+      padding: 7px 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+      border: 1px solid rgba(0, 180, 216, 0.4);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.3px;
+    }
+
+    .anatomy-marker:hover .anatomy-marker-label {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    .anatomy-info-card {
+      position: absolute;
+      left: 30px;
+      top: 50%;
+      transform: translateY(-50%) translateX(-400px);
+      width: 340px;
+      background: linear-gradient(145deg, #1f1f1f 0%, #0a0a0a 100%);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      z-index: 12;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      display: none;
+      border: 1px solid rgba(0, 180, 216, 0.2);
+    }
+
+    .anatomy-info-card.visible {
+      display: block;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .anatomy-info-card h3 {
+      background: linear-gradient(90deg, #00b4d8 0%, #48cae4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .anatomy-info-card p {
+      color: #ddd;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .anatomy-info-card .fun-fact {
+      background: rgba(0, 180, 216, 0.1);
+      padding: 15px;
+      border-left: 4px solid #00b4d8;
+      border-radius: 8px;
+      margin-top: 18px;
+      font-size: 13px;
+      color: #bbb;
+      line-height: 1.6;
+    }
+
+    .anatomy-info-card .close-card-btn {
+      background: linear-gradient(135deg, #0096c7 0%, #00b4d8 50%, #48cae4 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .anatomy-info-card .close-card-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .anatomy-info-card .close-card-btn:hover::before {
+      left: 100%;
+    }
+
+    .anatomy-info-card .close-card-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+    }
+
+    .anatomy-continue-btn {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #0096c7 0%, #00b4d8 50%, #48cae4 100%);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 11;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(0, 180, 216, 0.5);
+      overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+
+    .anatomy-continue-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .anatomy-continue-btn:hover::before {
+      left: 100%;
+    }
+
+    .anatomy-continue-btn:hover {
+      transform: translateX(-50%) translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 180, 216, 0.6);
+    }
+
+    .anatomy-hint {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      color: white;
+      padding: 14px 30px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      z-index: 11;
+      animation: gentlePulse 3s ease-in-out infinite;
+      border: 1px solid rgba(0, 180, 216, 0.4);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.3px;
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { 
+        opacity: 0.85;
+        transform: translateX(-50%) scale(1);
+      }
+      50% { 
+        opacity: 1;
+        transform: translateX(-50%) scale(1.02);
+      }
+    }
+
+    .style-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 20px;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    .style-overlay.visible {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .style-container {
+      background: linear-gradient(145deg, #1f1f1f 0%, #0a0a0a 100%);
+      padding: 35px;
+      border-radius: 20px;
+      max-width: 420px;
+      width: 90%;
+      border: 1px solid rgba(0, 180, 216, 0.2);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .style-container h2 {
+      background: linear-gradient(90deg, #00b4d8 0%, #48cae4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-top: 0;
+      margin-bottom: 25px;
+      font-size: 22px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .style-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .style-btn {
+      background: linear-gradient(135deg, #0096c7 0%, #00b4d8 50%, #48cae4 100%);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-align: left;
+      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .style-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .style-btn:hover::before {
+      left: 100%;
+    }
+
+    .style-btn:hover {
+      transform: translateX(5px);
+      box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+    }
+
+    .close-style-btn {
+      background: rgba(255, 255, 255, 0.05);
+      color: #999;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .close-style-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .close-style-btn:hover::before {
+      left: 100%;
+    }
+
+    .close-style-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ddd;
+    }
+
+    .interactive-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 20px;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    .interactive-overlay.visible {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .question-container {
+      background: linear-gradient(145deg, #1f1f1f 0%, #0a0a0a 100%);
+      padding: 35px;
+      border-radius: 20px;
+      max-width: 420px;
+      width: 90%;
+      border: 1px solid rgba(0, 180, 216, 0.2);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .question-container h2 {
+      background: linear-gradient(90deg, #00b4d8 0%, #48cae4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-top: 0;
+      margin-bottom: 25px;
+      font-size: 22px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 0;
+    }
+
+    .option-btn {
+      background: linear-gradient(135deg, #0096c7 0%, #00b4d8 50%, #48cae4 100%);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-align: left;
+      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .option-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .option-btn:hover::before {
+      left: 100%;
+    }
+
+    .option-btn:hover {
+      transform: translateX(5px);
+      box-shadow: 0 6px 20px rgba(0, 180, 216, 0.4);
+    }
+
+    .contact-info {
+      display: none;
+      text-align: center;
+    }
+
+    .contact-info.visible {
+      display: block;
+    }
+
+    .contact-info h3 {
+      background: linear-gradient(90deg, #00b4d8 0%, #48cae4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 24px;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+
+    .contact-info p {
+      font-size: 17px;
+      color: #ddd;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .contact-info a {
+      color: #48cae4;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .contact-info a:hover {
+      color: #90e0ef;
+    }
+
+    .vjs-marker {
+      position: absolute;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(135deg, #00b4d8 0%, #48cae4 100%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 5;
+      pointer-events: auto;
+      transition: all 0.2s ease;
+      user-select: none;
+      box-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+    }
+
+    .vjs-marker:hover {
+      transform: translate(-50%, -50%) scale(1.7);
+      box-shadow: 0 0 20px rgba(0, 180, 216, 0.8);
+    }
+
+    .tooltip {
+      position: absolute;
+      background: linear-gradient(135deg, #0096c7 0%, #00b4d8 100%);
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 8px;
+      white-space: nowrap;
+      transform: translate(-50%, -130%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 6;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .vjs-marker:hover .tooltip {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="video-container">
+  <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" poster="poster.png" data-setup='{}'>
+    <source src="video.mp4" type="video/mp4" />
+  </video>
+
+  <div class="medication-overlay" id="medication-overlay">
+    <div class="medication-container">
+      <h2>Choose the group of medications</h2>
+      <select class="medication-select" id="medication-select">
+        <option value="">Select medication group...</option>
+        <option value="ace-inhibitors">ACE inhibitors</option>
+        <option value="beta-blockers">Beta-blockers</option>
+        <option value="arbs">ARBs</option>
+        <option value="ca-channel-blockers">Ca channel blockers</option>
+      </select>
+      <div class="medication-actions">
+        <button class="medication-action-btn" id="download-checklist">Download Checklist</button>
+        <button class="medication-action-btn secondary" id="get-consultation">Get Consultation</button>
+      </div>
+      <button class="close-medication-btn" id="close-medication">Continue watching</button>
+    </div>
+  </div>
+
+  <div class="quiz-overlay" id="quiz-overlay">
+    <div class="quiz-container">
+      <div class="quiz-progress" id="quiz-progress">Question 1 of 3</div>
+      <h2 id="quiz-question">Antibiotics can treat viral infections like the flu.</h2>
+      <div class="quiz-buttons">
+        <button class="quiz-btn" data-answer="true">True</button>
+        <button class="quiz-btn" data-answer="false">False</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="anatomy-overlay" id="anatomy-overlay">
+    <div class="anatomy-hint">Click on the markers to explore</div>
+    
+    <div class="anatomy-marker" style="left: 58%; top: 48%;" data-organ="heart">
+      <div class="anatomy-marker-label">Heart</div>
+    </div>
+    
+    <div class="anatomy-marker" style="left: 63%; top: 28%;" data-organ="aorta">
+      <div class="anatomy-marker-label">Aorta</div>
+    </div>
+    
+    <div class="anatomy-marker" style="left: 61%; top: 24%;" data-organ="arteries">
+      <div class="anatomy-marker-label">Arteries</div>
+    </div>
+    
+    <div class="anatomy-marker" style="left: 56%; top: 31%;" data-organ="veins">
+      <div class="anatomy-marker-label">Veins</div>
+    </div>
+
+    <div class="anatomy-info-card" id="anatomy-card">
+      <h3 id="organ-name">Heart</h3>
+      <p id="organ-description">The heart is a muscular organ that pumps blood throughout your body.</p>
+      <p id="organ-function"><strong>Function:</strong> Circulates oxygen and nutrients to tissues.</p>
+      <div class="fun-fact" id="organ-fact">
+        <strong>Interesting fact:</strong> Your heart beats about 100,000 times per day!
+      </div>
+      <button class="close-card-btn" id="close-anatomy-card">Close</button>
+    </div>
+
+    <button class="anatomy-continue-btn" id="continue-anatomy">Continue Video</button>
+  </div>
+
+  <div class="style-overlay" id="style-overlay">
+    <div class="style-container">
+      <h2>Choose your style</h2>
+      <div class="style-options">
+        <button class="style-btn" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ">2D explainers</button>
+        <button class="style-btn" data-url="https://www.youtube.com/watch?v=9bZkp7q19f0">3D visualization</button>
+        <button class="style-btn" data-url="https://www.youtube.com/watch?v=kJQP7kiw5Fk">Mix motion design + real footage</button>
+      </div>
+      <button class="close-style-btn" id="close-style">Continue watching</button>
+    </div>
+  </div>
+
+  <div class="interactive-overlay" id="overlay">
+    <div class="question-container">
+      <div id="question-section">
+        <h2>Where could this format be useful in your work?</h2>
+        <div class="options">
+          <button class="option-btn">Product or therapy area training</button>
+          <button class="option-btn">Medical device usage tutorials</button>
+          <button class="option-btn">Field force learning & updates</button>
+        </div>
+      </div>
+      
+      <div class="contact-info" id="contact-section">
+        <h3>Connect with our Account Executive</h3>
+        <p>Email: <a href="mailto:sales@nanobotmedical.com">sales@nanobotmedical.com</a></p>
+        <p>Phone: <a href="tel:+48799354938">+48 799 35 49 38</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const player = videojs('my-video');
+  
+  const medicationOverlay = document.getElementById('medication-overlay');
+  const quizOverlay = document.getElementById('quiz-overlay');
+  const anatomyOverlay = document.getElementById('anatomy-overlay');
+  const styleOverlay = document.getElementById('style-overlay');
+  const endOverlay = document.getElementById('overlay');
+  
+  const medicationSelect = document.getElementById('medication-select');
+  const downloadChecklistBtn = document.getElementById('download-checklist');
+  const getConsultationBtn = document.getElementById('get-consultation');
+  const closeMedicationBtn = document.getElementById('close-medication');
+  
+  const quizQuestion = document.getElementById('quiz-question');
+  const quizProgress = document.getElementById('quiz-progress');
+  const quizButtons = document.querySelectorAll('.quiz-btn');
+  
+  const anatomyMarkers = document.querySelectorAll('.anatomy-marker');
+  const anatomyCard = document.getElementById('anatomy-card');
+  const continueAnatomyBtn = document.getElementById('continue-anatomy');
+  const closeAnatomyCardBtn = document.getElementById('close-anatomy-card');
+  
+  const styleButtons = document.querySelectorAll('.style-btn');
+  const closeStyleBtn = document.getElementById('close-style');
+  
+  const questionSection = document.getElementById('question-section');
+  const contactSection = document.getElementById('contact-section');
+  const optionButtons = document.querySelectorAll('.option-btn');
+  
+  let medicationShown = false;
+  let quizShown = false;
+  let anatomyShown = false;
+  let styleShown = false;
+  let currentQuizIndex = 0;
+
+  const quizData = [
+    { question: "Antibiotics can treat viral infections like the flu.", correct: "false" },
+    { question: "Painkillers like ibuprofen can reduce inflammation.", correct: "true" },
+    { question: "Vaccines work by training your immune system to fight diseases.", correct: "true" }
+  ];
+
+  const anatomyData = {
+    heart: {
+      name: "Heart",
+      description: "The heart is a muscular organ that pumps blood throughout your body, delivering oxygen and nutrients to all tissues.",
+      function: "Pumps oxygenated blood to the body and deoxygenated blood to the lungs.",
+      fact: "Your heart beats about 100,000 times per day, pumping roughly 2,000 gallons of blood!"
+    },
+    aorta: {
+      name: "Aorta",
+      description: "The aorta is the largest artery in the body, originating from the left ventricle of the heart.",
+      function: "Carries oxygen-rich blood from the heart to all parts of the body.",
+      fact: "The aorta can be as thick as a garden hose and is about 1 foot long in adults!"
+    },
+    arteries: {
+      name: "Arteries",
+      description: "Arteries are blood vessels that carry blood away from the heart to various parts of the body.",
+      function: "Transport oxygenated blood under high pressure to organs and tissues.",
+      fact: "Arteries have thick, elastic walls that can withstand high blood pressure from each heartbeat!"
+    },
+    veins: {
+      name: "Veins",
+      description: "Veins are blood vessels that carry blood back to the heart from the body's tissues.",
+      function: "Return deoxygenated blood to the heart and have valves to prevent backflow.",
+      fact: "Veins contain about 70% of your body's blood volume at any given time!"
+    }
+  };
+
+  player.on('timeupdate', () => {
+    const t = player.currentTime();
+    
+    if (t >= 27.43 && t < 27.93 && !medicationShown) {
+      player.pause();
+      medicationOverlay.classList.add('visible');
+      medicationShown = true;
+    }
+    
+    if (t >= 30.66 && t < 31.16 && !quizShown) {
+      player.pause();
+      quizOverlay.classList.add('visible');
+      quizShown = true;
+    }
+    
+    if (t >= 32.06 && t < 32.56 && !anatomyShown) {
+      player.pause();
+      anatomyOverlay.classList.add('visible');
+      anatomyShown = true;
+    }
+    
+    if (t >= 37.66 && t < 38.16 && !styleShown) {
+      player.pause();
+      styleOverlay.classList.add('visible');
+      styleShown = true;
+    }
+  });
+
+  medicationSelect.addEventListener('change', function() {
+    // Просто выбор без действия
+  });
+
+  downloadChecklistBtn.addEventListener('click', () => {
+    const blob = new Blob(['Medication Checklist\n===================\n\nACE inhibitors\nBeta-blockers\nARBs\nCa channel blockers\n\nNotes:\n______________________\n______________________\n'], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'medication-checklist.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  getConsultationBtn.addEventListener('click', () => {
+    window.open('mailto:consultation@medicalvideos.com?subject=Request for Consultation', '_blank');
+  });
+
+  closeMedicationBtn.addEventListener('click', () => {
+    medicationOverlay.classList.remove('visible');
+    player.play();
+  });
+
+  quizButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (this.classList.contains('disabled')) return;
+      
+      const userAnswer = this.getAttribute('data-answer');
+      const correctAnswer = quizData[currentQuizIndex].correct;
+      
+      quizButtons.forEach(b => b.classList.add('disabled'));
+      
+      if (userAnswer === correctAnswer) {
+        this.classList.add('correct');
+        this.innerHTML = '<div class="quiz-result-icon"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div>';
+      } else {
+        this.classList.add('incorrect');
+        this.innerHTML = '<div class="quiz-result-icon"><svg class="xmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="xmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="xmark-line" fill="none" d="M16 16 36 36 M36 16 16 36"/></svg></div>';
+        quizButtons.forEach(b => {
+          if (b.getAttribute('data-answer') === correctAnswer) {
+            b.classList.add('correct');
+            b.innerHTML = '<div class="quiz-result-icon"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg></div>';
+          }
+        });
+      }
+      
+      setTimeout(() => {
+        currentQuizIndex++;
+        if (currentQuizIndex < quizData.length) {
+          quizQuestion.textContent = quizData[currentQuizIndex].question;
+          quizProgress.textContent = 'Question ' + (currentQuizIndex + 1) + ' of ' + quizData.length;
+          quizButtons.forEach(b => {
+            b.classList.remove('correct', 'incorrect', 'disabled');
+            b.innerHTML = b.getAttribute('data-answer') === 'true' ? 'True' : 'False';
+          });
+        } else {
+          quizOverlay.classList.remove('visible');
+          currentQuizIndex = 0;
+          quizQuestion.textContent = quizData[0].question;
+          quizProgress.textContent = 'Question 1 of 3';
+          quizButtons.forEach(b => {
+            b.classList.remove('correct', 'incorrect', 'disabled');
+            b.innerHTML = b.getAttribute('data-answer') === 'true' ? 'True' : 'False';
+          });
+          player.play();
+        }
+      }, 1500);
+    });
+  });
+
+  anatomyMarkers.forEach(marker => {
+    marker.addEventListener('click', () => {
+      const organ = marker.getAttribute('data-organ');
+      const data = anatomyData[organ];
+      
+      document.getElementById('organ-name').textContent = data.name;
+      document.getElementById('organ-description').textContent = data.description;
+      document.getElementById('organ-function').innerHTML = '<strong>Function:</strong> ' + data.function;
+      document.getElementById('organ-fact').innerHTML = '<strong>Interesting fact:</strong> ' + data.fact;
+      
+      anatomyCard.classList.add('visible');
+    });
+  });
+
+  closeAnatomyCardBtn.addEventListener('click', () => {
+    anatomyCard.classList.remove('visible');
+  });
+
+  continueAnatomyBtn.addEventListener('click', () => {
+    anatomyOverlay.classList.remove('visible');
+    anatomyCard.classList.remove('visible');
+    player.play();
+  });
+
+  styleButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      window.open(btn.getAttribute('data-url'), '_blank');
+    });
+  });
+
+  closeStyleBtn.addEventListener('click', () => {
+    styleOverlay.classList.remove('visible');
+    player.play();
+  });
+
+  player.on('ended', () => {
+    endOverlay.classList.add('visible');
+  });
+
+  optionButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      questionSection.style.display = 'none';
+      contactSection.classList.add('visible');
+    });
+  });
+
+  player.ready(() => {
+    const duration = player.duration() || 51;
+    const progressControl = player.controlBar.progressControl;
+    const bar = progressControl.seekBar.el();
+
+    const markers = [
+      { time: 27.43, label: 'Medications' },
+      { time: 30.66, label: 'Quiz' },
+      { time: 32.06, label: 'Cardiovascular System' },
+      { time: 37.66, label: 'Choose your style' },
+      { time: 49.93, label: 'Interactive Question' }
+    ];
+
+    markers.forEach(m => {
+      const marker = document.createElement('div');
+      marker.className = 'vjs-marker';
+      marker.style.left = (m.time / duration * 100) + '%';
+
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tooltip';
+      tooltip.textContent = m.label;
+      tooltip.style.left = '50%';
+      
+      marker.appendChild(tooltip);
+      bar.appendChild(marker);
+      
+      marker.addEventListener('click', () => {
+        player.currentTime(m.time);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
