@@ -7,8 +7,8 @@
   <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
   <style>
     body {
-      background: #ffffff;
-      color: #222;
+      background: #0a0a0a;
+      color: #fff;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       text-align: center;
       padding: 20px;
@@ -407,10 +407,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.05);
       display: none;
       z-index: 10;
-      backdrop-filter: blur(4px);
     }
 
     .anatomy-overlay.visible {
@@ -484,9 +483,9 @@
 
     .anatomy-info-card {
       position: absolute;
-      right: 30px;
+      left: 30px;
       top: 50%;
-      transform: translateY(-50%) translateX(400px);
+      transform: translateY(-50%) translateX(-400px);
       width: 340px;
       background: linear-gradient(145deg, #1f1f1f 0%, #0a0a0a 100%);
       border-radius: 20px;
@@ -948,8 +947,8 @@
         <option value="https://www.youtube.com/watch?v=jNQXAC9IVRw">Ca channel blockers</option>
       </select>
       <div class="medication-actions">
-        <button class="medication-action-btn" id="download-checklist">⬇️ Download Checklist</button>
-        <button class="medication-action-btn secondary" id="get-consultation">💬 Get Consultation</button>
+        <button class="medication-action-btn" id="download-checklist">Download Checklist</button>
+        <button class="medication-action-btn secondary" id="get-consultation">Get Consultation</button>
       </div>
       <button class="close-medication-btn" id="close-medication">Continue watching</button>
     </div>
@@ -967,21 +966,21 @@
   </div>
 
   <div class="anatomy-overlay" id="anatomy-overlay">
-    <div class="anatomy-hint">👆 Click on the markers to explore</div>
+    <div class="anatomy-hint">Click on the markers to explore</div>
     
-    <div class="anatomy-marker" style="left: 50%; top: 45%;" data-organ="heart">
+    <div class="anatomy-marker" style="left: 58%; top: 48%;" data-organ="heart">
       <div class="anatomy-marker-label">Heart</div>
     </div>
     
-    <div class="anatomy-marker" style="left: 48%; top: 35%;" data-organ="aorta">
+    <div class="anatomy-marker" style="left: 63%; top: 28%;" data-organ="aorta">
       <div class="anatomy-marker-label">Aorta</div>
     </div>
     
-    <div class="anatomy-marker" style="left: 40%; top: 50%;" data-organ="arteries">
+    <div class="anatomy-marker" style="left: 61%; top: 24%;" data-organ="arteries">
       <div class="anatomy-marker-label">Arteries</div>
     </div>
     
-    <div class="anatomy-marker" style="left: 60%; top: 50%;" data-organ="veins">
+    <div class="anatomy-marker" style="left: 56%; top: 31%;" data-organ="veins">
       <div class="anatomy-marker-label">Veins</div>
     </div>
 
@@ -990,7 +989,7 @@
       <p id="organ-description">The heart is a muscular organ that pumps blood throughout your body.</p>
       <p id="organ-function"><strong>Function:</strong> Circulates oxygen and nutrients to tissues.</p>
       <div class="fun-fact" id="organ-fact">
-        <strong>💡 Interesting fact:</strong> Your heart beats about 100,000 times per day!
+        <strong>Interesting fact:</strong> Your heart beats about 100,000 times per day!
       </div>
       <button class="close-card-btn" id="close-anatomy-card">Close</button>
     </div>
@@ -1023,8 +1022,8 @@
       
       <div class="contact-info" id="contact-section">
         <h3>Connect with our Account Executive</h3>
-        <p>✉️ Email: <a href="mailto:sales@medicalvideos.com">sales@medicalvideos.com</a></p>
-        <p>📱 Phone: <a href="tel:+15551234567">+1 (555) 123-4567</a></p>
+        <p>Email: <a href="mailto:sales@nanobotmedical.com">sales@nanobotmedical.com</a></p>
+        <p>Phone: <a href="tel:+48799354938">+48 799 35 49 38</a></p>
       </div>
     </div>
   </div>
@@ -1102,25 +1101,25 @@
   player.on('timeupdate', function() {
     const t = player.currentTime();
     
-    if (t >= 27 && t < 27.5 && !medicationShown) {
+    if (t >= 27.6 && t < 28.1 && !medicationShown) {
       player.pause();
       medicationOverlay.classList.add('visible');
       medicationShown = true;
     }
     
-    if (t >= 30 && t < 30.5 && !quizShown) {
+    if (t >= 30.6 && t < 31.1 && !quizShown) {
       player.pause();
       quizOverlay.classList.add('visible');
       quizShown = true;
     }
     
-    if (t >= 31 && t < 31.5 && !anatomyShown) {
+    if (t >= 31.6 && t < 32.1 && !anatomyShown) {
       player.pause();
       anatomyOverlay.classList.add('visible');
       anatomyShown = true;
     }
     
-    if (t >= 37 && t < 37.5 && !styleShown) {
+    if (t >= 37.6 && t < 38.1 && !styleShown) {
       player.pause();
       styleOverlay.classList.add('visible');
       styleShown = true;
@@ -1208,7 +1207,7 @@
       document.getElementById('organ-name').textContent = data.name;
       document.getElementById('organ-description').textContent = data.description;
       document.getElementById('organ-function').innerHTML = '<strong>Function:</strong> ' + data.function;
-      document.getElementById('organ-fact').innerHTML = '<strong>💡 Interesting fact:</strong> ' + data.fact;
+      document.getElementById('organ-fact').innerHTML = '<strong>Interesting fact:</strong> ' + data.fact;
       
       anatomyCard.classList.add('visible');
     });
@@ -1248,17 +1247,16 @@
 
   player.on('loadedmetadata', function() {
     const duration = player.duration();
-    console.log('Video duration:', duration);
     
     const progressControl = player.controlBar.progressControl;
     const bar = progressControl.seekBar.el();
 
     const markers = [
-      { time: 27, label: 'Medications' },
-      { time: 30, label: 'Quiz' },
-      { time: 31, label: 'Cardiovascular System' },
-      { time: 37, label: 'Choose your style' },
-      { time: 54, label: 'Interactive Question' }
+      { time: 27.6, label: 'Medications' },
+      { time: 30.6, label: 'Quiz' },
+      { time: 31.6, label: 'Cardiovascular System' },
+      { time: 37.6, label: 'Choose your style' },
+      { time: 54.6, label: 'Interactive Question' }
     ];
 
     markers.forEach(function(m) {
